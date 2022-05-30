@@ -1,5 +1,5 @@
 waves = []
-total = 300
+total = 100
 mods = []
 
 function setup() {
@@ -69,7 +69,7 @@ function draw() {
   let fps = frameRate()
   if (fps > 61) {
     total += 3
-  } else if (fps < 58) {
+  } else if (total > 12 && fps < 58) {
     total -= 3
   }
 
