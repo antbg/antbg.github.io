@@ -1,9 +1,9 @@
 waves = []
-total = 10000
+total = 1000
 mods = []
 
 function setup() {
-  createCanvas(2300, 1150)
+  createCanvas(windowWidth, windowHeight)
   
   mods = [Mod0, Mod1, Mod2]
   
@@ -18,6 +18,10 @@ function setup() {
   }
   
   textSize(18)
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight)
 }
 
 function draw() {
