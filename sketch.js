@@ -1,9 +1,16 @@
 waves = []
 total = 100
 mods = []
+fps = 0
+
+let newFont;
+
+function preload() {
+  newFont = loadFont('Inconsolata-ExtraLight.ttf')
+}
 
 function setup() {
-  createCanvas(windowWidth, windowHeight)
+  createCanvas(windowWidth, windowHeight, WEBGL)
   
   mods = [Mod0, Mod1, Mod2]
   
@@ -17,7 +24,8 @@ function setup() {
     waves.push(new mods[rndIdx]())
   }
   
-  textSize(18)
+  // textSize(18)
+  textFont(newFont, 24)
 }
 
 function windowResized() {
@@ -30,6 +38,8 @@ function draw() {
   stroke(220, 40)
   strokeWeight(3)
   
+  translate(-width*0.5, -height*0.5)
+
   let a = radians(frameCount+1 % 360) * 30
   
   for (const mod of mods) {
@@ -66,15 +76,17 @@ function draw() {
     mod.clearPoints()
   }
   
-  let fps = frameRate()
-  if (fps > 61) {
-    total += 3
-  } else if (total > 12 && fps < 58) {
-    total -= 3
+  if (frameCount % 30 == 0) {
+    fps = frameRate()
+    if (fps > 61) {
+      total += 3
+    } else if (total > 12 && fps < 58) {
+      total -= 3
+    }
   }
 
   fill(225)
-  strokeWeight(2)
+  // strokeWeight(2)
   stroke(10)
   text(nf(fps, 3, 1), 20, 20)
   text(total, 20, 40)
