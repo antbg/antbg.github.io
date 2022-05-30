@@ -1,5 +1,5 @@
 waves = []
-total = 1000
+total = 300
 mods = []
 
 function setup() {
@@ -66,10 +66,18 @@ function draw() {
     mod.clearPoints()
   }
   
-  // fill(225)
-  // strokeWeight(2)
-  // stroke(10)
-  // text(nf(frameRate(), 3, 1), 20, 20)
+  let fps = frameRate()
+  if (fps > 61) {
+    total += 3
+  } else if (fps < 58) {
+    total -= 3
+  }
+
+  fill(225)
+  strokeWeight(2)
+  stroke(10)
+  text(nf(frameRate(), 3, 1), 20, 20)
+  text(total, 20, 40)
 }
 
 class Wave {
