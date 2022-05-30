@@ -57,7 +57,7 @@ function draw() {
   }
   
   let i = total - waves.length
-  while(i--) {
+  while(i-- > 0) {
     let rndIdx = floor(random(0, mods.length))
     waves.push(new mods[rndIdx]())
   }
@@ -76,7 +76,7 @@ function draw() {
   fill(225)
   strokeWeight(2)
   stroke(10)
-  text(nf(frameRate(), 3, 1), 20, 20)
+  text(nf(fps, 3, 1), 20, 20)
   text(total, 20, 40)
 }
 
