@@ -5,7 +5,7 @@ fps = 0
 
 
 function setup() {
-  createCanvas(2300, 1150)
+  createCanvas(displayWidth, displayHeight)
 
   mods = [Mod0, Mod1, Mod2]
   
@@ -27,7 +27,7 @@ function draw() {
   noFill()
   stroke(225, 86)
   strokeWeight(3)
-  
+
   let a = frameCount * 0.5
   
   for (const mod of mods) {
