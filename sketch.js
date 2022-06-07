@@ -5,7 +5,7 @@ fps = 0
 
 
 function setup() {
-  createCanvas(displayWidth, displayHeight)
+  createCanvas(windowWidth, windowHeight)
 
   mods = [Mod0, Mod1, Mod2]
   
