@@ -1,17 +1,12 @@
 waves = []
-total = 100
+total = 32
 mods = []
 fps = 0
 
-let newFont;
-
-function preload() {
-  newFont = loadFont('Inconsolata-ExtraLight.ttf')
-}
 
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL)
-  
+  createCanvas(2300, 1150)
+
   mods = [Mod0, Mod1, Mod2]
   
   for (const mod of mods) {
@@ -24,23 +19,16 @@ function setup() {
     waves.push(new mods[rndIdx]())
   }
   
-  // textSize(18)
-  textFont(newFont, 24)
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight)
+  textSize(32)
 }
 
 function draw() {
   background(10)
-  noFill();
-  stroke(220, 40)
+  noFill()
+  stroke(225, 86)
   strokeWeight(3)
   
-  translate(-width*0.5, -height*0.5)
-
-  let a = radians(frameCount+1 % 360) * 30
+  let a = frameCount * 0.5
   
   for (const mod of mods) {
     mod.calcPoints(a)
@@ -78,18 +66,18 @@ function draw() {
   
   if (frameCount % 30 == 0) {
     fps = frameRate()
-    if (fps > 61) {
-      total += 3
+    if (fps > 59) {
+      total += 6
     } else if (total > 12 && fps < 58) {
-      total -= 3
+      total -= 6
     }
   }
-
+  
   fill(225)
-  // strokeWeight(2)
   stroke(10)
-  text(nf(fps, 3, 1), 20, 20)
-  text(total, 20, 40)
+  text(nf(fps, 3, 1), 20, 30)
+  text(total, 20, 60)
+  text(waves.length, 20, 90)
 }
 
 class Wave {
@@ -178,24 +166,4 @@ class Mod2 extends Wave {
     }
   }
   
-}
-
-
-class Mod3 extends Wave {
-  static modFreq = 32
-
-  static calcPoints(a) {
-    for (let theta = -Wave.prototype.limit*0.5; theta < Wave.prototype.limit*0.5; theta += Wave.prototype.dt) {
-      Wave.prototype[this.name].push(createVector(theta * Wave.prototype.s * 1.5, sin(theta + sin(theta * this.modFreq) + a) * Wave.prototype.s * 1.5))
-    }
-  }
-  
-}
-
-class Mod4 extends Mod3 {
-  static modFreq = 7
-}
-
-class Mod5 extends Mod3 {
-  static modFreq = 43
 }
