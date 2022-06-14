@@ -1,5 +1,6 @@
 function setup() {
   createCanvas(windowWidth, windowHeight)
+  pixelDensity(1)
   // createCanvas(2550, 1150)
 
   shapes = []
