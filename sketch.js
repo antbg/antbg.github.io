@@ -93,9 +93,12 @@ function draw() {
   text(nf(fps, 3, 1), 20, 30)
   text(total, 20, 60)
   text(waves.length, 20, 90)
+  text(`${windowWidth} x ${windowHeight}`, 20, 120)
 }
 
-
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight)
+}
 
 class Wave {
 
