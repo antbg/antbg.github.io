@@ -1,5 +1,5 @@
 function setup() {
-  createCanvas(displayWidth, displayHeight)
+  createCanvas(windowWidth, windowHeight)
   // createCanvas(2550, 1150)
 
   shapes = []
@@ -7,7 +7,7 @@ function setup() {
   // mods = [pt, am]
   // mods = [as2, as3, as4]
   waves = []
-  total = 1<<5
+  total = 1<<3
   fps = 0
 
   s = 8
@@ -79,12 +79,12 @@ function draw() {
     waves.push(new Wave())
   }
   
-  if (frameCount % 30 == 0) {
+  if (frameCount % 15 == 0) {
     fps = frameRate()
     if (fps > 59) {
-      total += 6
+      total += 2
     } else if (total > 12 && fps < 58) {
-      total -= 6
+      total -= 2
     }
   }
   
