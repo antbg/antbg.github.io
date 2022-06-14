@@ -1,50 +1,70 @@
-waves = []
-total = 32
-mods = []
-fps = 0
-
-
 function setup() {
-  createCanvas(windowWidth, windowHeight)
+  createCanvas(displayWidth, displayHeight)
+  // createCanvas(2550, 1150)
 
-  mods = [Mod0, Mod1, Mod2]
+  shapes = []
+  mods = [pt, am, fm, fm2, fm3, ss, ss2, as, as2, as3, as4]
+  // mods = [pt, am]
+  // mods = [as2, as3, as4]
+  waves = []
+  total = 1<<5
+  fps = 0
+
+  s = 8
+  p = 3
+  dt = 0.5
+
+  l = TWO_PI * p
+  w = l * s
+  h = s * 8
   
-  for (const mod of mods) {
-    mod.init()
-  }
+  hl = l * 0.5
+  hw = w * 0.5
+  hh = h * 0.5
+  
+  render(0)
   
   let amount = total
   while(amount--) {
-    let rndIdx = floor(random(0, mods.length))
-    waves.push(new mods[rndIdx]())
+    waves.push(new Wave())
   }
   
   textSize(32)
+  imageMode(CENTER)
+}
+
+function hasLeftScreen(wave) {
+  let pointA = p5.Vector.sub(wave.pos, p5.Vector.mult(wave.orientation, hw))
+  let pointB = p5.Vector.add(wave.pos, p5.Vector.mult(wave.orientation, hw))
+  if (screenContains(pointA) || screenContains(pointB))
+    return false
+  return true
+}
+
+function screenContains(vec) {
+  if (vec.x < width && vec.x > 0 && vec.y > 0 && vec.y < height) 
+    return true
+  return false
 }
 
 function draw() {
   background(10)
   noFill()
-  stroke(225, 86)
-  strokeWeight(3)
-
+    
   let a = frameCount * 0.5
-  
-  for (const mod of mods) {
-    mod.calcPoints(a)
-  }
+  cleanUp()
+  render(a)
   
   let remove = []
   for (const w of waves) {
     w.draw()
     w.advance()
-    let offset = 2*w.width
     if (w.entered) {
-      if (w.pos.x > width + offset || w.pos.y > height + offset || w.pos.x < -offset || w.pos.y < -offset) {
+      if (hasLeftScreen(w)) {
         remove.push(waves.indexOf(w))
       }      
     } else {
-      if (w.pos.x < width + offset && w.pos.y < height + offset && w.pos.x > -offset && w.pos.y > -offset) {
+      if (!hasLeftScreen(w)) {
         w.entered = true
       }
     }
@@ -56,12 +76,7 @@ function draw() {
   
   let i = total - waves.length
   while(i-- > 0) {
-    let rndIdx = floor(random(0, mods.length))
-    waves.push(new mods[rndIdx]())
-  }
-  
-  for (const mod of mods) {
-    mod.clearPoints()
+    waves.push(new Wave())
   }
   
   if (frameCount % 30 == 0) {
@@ -80,32 +95,22 @@ function draw() {
   text(waves.length, 20, 90)
 }
 
+
+
 class Wave {
 
-  static init() {
-    Wave.prototype.dt = 1
-    Wave.prototype.s = 8
-    Wave.prototype.periods = 3
-    Wave.prototype.limit = TWO_PI * Wave.prototype.periods
-    Wave.prototype.width = Wave.prototype.limit * Wave.prototype.s
-    Wave.prototype[this.name] = []
-  }
-
   constructor() {
+    this.shape = floor(random(0, shapes.length))
     this.entered = false
     this.speed = random(3, 6)
     this.orientation = createVector(random(-1, 1), random(-1, 1)).normalize()
     
-    if (this.orientation.x < 0 && this.orientation.y < 0) {
+    if (this.orientation.y < 0) {
       this.pos = createVector(random(0, width), height)
-    } else if (this.orientation.x < 0 && this.orientation.y > 0) {
-      this.pos = createVector(random(0, width), 0)
-    } else if (this.orientation.x > 0 && this.orientation.y > 0) {
-      this.pos = createVector(random(0, width), 0)
     } else {
-      this.pos = createVector(random(0, width), height)
+      this.pos = createVector(random(0, width), 0)
     }
-    this.pos.sub(p5.Vector.mult(this.orientation, Wave.prototype.width))
+    this.pos.sub(p5.Vector.mult(this.orientation, hw))
   }
   
   advance() {
@@ -115,55 +120,91 @@ class Wave {
   draw() {
     push()
     translate(this.pos.x, this.pos.y)
+    // stroke(255, 0, 0)
+    // strokeWeight(2)
+    // point(-this.orientation.x * hw, -this.orientation.y * hw)
+    // point(this.orientation.x * hw, this.orientation.y * hw)
+    // line(0, 0, this.orientation.x * hw, this.orientation.y * hw)
     rotate(this.orientation.heading())
-    beginShape()
-    for (const p of this[this.constructor.name]) {
-      vertex(p.x, p.y)
-    }
-    endShape()
+    image(shapes[this.shape], 0, 0)
     pop()
   }
   
-  static clearPoints() {
-    Wave.prototype[this.name] = []
+}
+
+function cleanUp() {
+  for (const g of shapes) {
+    g.remove()
+  }
+  shapes = []
+}
+
+function render(a) {
+  for (const mod of mods) {
+    const g = createGraphics(w, h)
+    g.background(10, 0)
+    g.noFill()
+    g.stroke(225, 125)
+    g.strokeWeight(3)
+    g.translate(hw, hh)
+
+    g.beginShape()
+    for (let t = -hl; t < hl; t += dt) {
+      mod(g, t, a)
+    }
+    g.endShape()
+    shapes.push(g)
   }
 }
 
-class Mod0 extends Wave {
-  static amp = 80
-
-  static calcPoints(a) {
-    for (let theta = -Wave.prototype.limit*0.5; theta < Wave.prototype.limit*0.5; theta += Wave.prototype.dt) {
-      let mul = map(theta, -Wave.prototype.limit*0.5, Wave.prototype.limit*0.5, 0, this.amp)
-      if (theta > 0) {
-        mul = this.amp - mul
-      }
-      Wave.prototype[this.name].push(createVector(theta * Wave.prototype.s, sin(theta + a) * mul))
-    }
-  }
-  
+function pt(g, t, a) {
+  g.vertex(t * s, sin(t + a) * s)
 }
 
-class Mod1 extends Wave {
-
-  static calcPoints(a) {
-    for (let theta = -Wave.prototype.limit*0.5; theta < Wave.prototype.limit*0.5; theta += Wave.prototype.dt) {
-      Wave.prototype[this.name].push(createVector(theta * Wave.prototype.s, sin(theta + a) * Wave.prototype.s))
-    }
+function am(g, t, a) {
+  let m = map(t, -hl, hl, 0, h)
+  if (t > 0) {
+    m = h - m
   }
-  
+  g.vertex(t * s, sin(t + a) * m)
 }
 
-class Mod2 extends Wave {
-
-  static calcPoints(a) {
-    for (let theta = -Wave.prototype.limit; theta < Wave.prototype.limit; theta += Wave.prototype.dt) {
-      let mod = map(theta, -Wave.prototype.limit, 0, 1, 0.5)
-      if (theta > 0) {
-        mod = map(theta, 0, Wave.prototype.limit, 0.5, 1)
-      } 
-      Wave.prototype[this.name].push(createVector(theta * mod * Wave.prototype.s, sin(theta + a) * Wave.prototype.s))
-    }
+function fm(g, t, a) {
+  let m = map(t, -hl, 0, 1, 0.5)
+  if (t > 0) {
+    m = map(t, 0, hl, 0.5, 1)
   }
-  
+  g.vertex(t * m * s, sin(t + a) * s)
+}
+
+function fm2(g, t, a) {
+  g.vertex((t + sin(t * 0.5)) * s, sin(t + a) * s)
+}
+
+function fm3(g, t, a) {
+  g.vertex((t - sin(t * 0.5)) * s, sin(t + a) * s)
+}
+
+function ss(g, t, a) {
+  g.vertex((t - abs(t * 0.25)) * s, sin(t + a) * s)
+}
+
+function ss2(g, t, a) {
+  g.vertex(t * s, sin(t - abs(t * 0.25) + a) * s)
+}
+
+function as(g, t, a) {
+  g.vertex((t + sin(t)) * s, sin(t + a) * s)
+}
+
+function as2(g, t, a) {
+  g.vertex(t * s, (sin(t + a) + sin(2*t + a)) * s)
+}
+
+function as3(g, t, a) {
+  g.vertex(t * s, (sin(t + a) + sin(3*t + a)) * s)
+}
+
+function as4(g, t, a) {
+  g.vertex(t * s, (sin(t + a) + sin(4*t + a)) * s)
 }
